@@ -267,7 +267,7 @@ class DiagonalFlipper(QtGui.QPushButton):
 class GameScreen(QtGui.QWidget):
     """A game screen"""
 
-    def __init__(self, board_size, how_messy, parent=None):
+    def __init__(self, board_size, parent=None):
 
         super(GameScreen, self).__init__()
 
@@ -309,7 +309,7 @@ if __name__ == '__main__':
 
     app = QtGui.QApplication(sys.argv)
 
-    gs = GameScreen(5, 3)
+    gs = GameScreen(5)
     gs.show()
 
     sys.exit(app.exec_())
