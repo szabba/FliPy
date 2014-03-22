@@ -122,6 +122,8 @@ class BoxWidget(QtGui.QWidget):
 
             self.setParent(parent)
 
+        board.flipped.connect(self.onFlip)
+
         self.__board = board
         self.__pos = pos
 
@@ -157,6 +159,39 @@ class BoxWidget(QtGui.QWidget):
 
         self.draw()
 
+    def onFlip(self, i, j):
+        """Bw.onFlip(i, j)
+
+        React to a board box being flipped.
+        """
+
+        if (i, j) == self.__pos:
+
+            self.repaint()
+
+
+class RowFlipper(QtGui.QPushButton):
+    """A button that flips a boards row"""
+
+    def __init__(self, board, row_no, parent=None):
+
+        super(RowFlipper, self).__init__('Flip', parent)
+
+        self.__board = board
+        self.__row_no = row_no
+
+        self.clicked.connect(self.flip)
+
+    def flip(self):
+        """RF.flip()
+
+        Flips the appropriate row.
+        """
+
+        print "Flip button for row %d pressed" % self.__row_no
+
+        self.__board.swap_row(self.__row_no)
+
 
 if __name__ == '__main__':
 
@@ -166,5 +201,8 @@ if __name__ == '__main__':
 
     bw = BoxWidget(b, (3, 3))
     bw.show()
+
+    f = RowFlipper(b, 3)
+    f.show()
 
     sys.exit(app.exec_())
