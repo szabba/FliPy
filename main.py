@@ -171,7 +171,7 @@ class BoxWidget(QtGui.QWidget):
 
 
 class RowFlipper(QtGui.QPushButton):
-    """A button that flips a boards row"""
+    """A button that flips a board's row"""
 
     def __init__(self, board, row_no, parent=None):
 
@@ -188,9 +188,28 @@ class RowFlipper(QtGui.QPushButton):
         Flips the appropriate row.
         """
 
-        print "Flip button for row %d pressed" % self.__row_no
-
         self.__board.swap_row(self.__row_no)
+
+
+class ColumnFlipper(QtGui.QPushButton):
+    """A button that flips a board's column"""
+
+    def __init__(self, board, column_no, parent=None):
+
+        super(ColumnFlipper, self).__init__('Flip', parent)
+
+        self.__board = board
+        self.__column_no = column_no
+
+        self.clicked.connect(self.flip)
+
+    def flip(self):
+        """RF.flip()
+
+        Flips the appropriate column.
+        """
+
+        self.__board.swap_column(self.__column_no)
 
 
 if __name__ == '__main__':
@@ -202,7 +221,10 @@ if __name__ == '__main__':
     bw = BoxWidget(b, (3, 3))
     bw.show()
 
-    f = RowFlipper(b, 3)
-    f.show()
+    rf = RowFlipper(b, 3)
+    rf.show()
+
+    cf = ColumnFlipper(b, 3)
+    cf.show()
 
     sys.exit(app.exec_())
