@@ -14,7 +14,7 @@ class Board(QtCore.QObject):
     flipped = QtCore.pyqtSignal(int, int)
     solved = QtCore.pyqtSignal()
 
-    def __init__(self, size, mess):
+    def __init__(self, size):
 
         super(Board, self).__init__()
 
@@ -24,30 +24,25 @@ class Board(QtCore.QObject):
                 [True for i in range(size)]
                 for i in range(size)]
 
-        self.__signal_when_solved = False
+        self.mess_up()
 
-        self.mess_up(mess)
-
-        self.__signal_when_solved = True
-
-    def mess_up(self, how_much):
-        """B.mess_up(how_much)
+    def mess_up(self):
+        """B.mess_up()
 
         Randomly swaps columns and rows around.
         """
 
-        for _ in range(how_much):
+        for row in range(self.size()):
 
-            column = random.choice([True, False])
-            which = random.randint(0, self.__size - 1)
+            if random.choice([True, False]):
 
-            if column:
+                self.swap_row(row)
 
-                self.swap_column(which)
+        for column in range(self.size()):
 
-            else:
+            if random.choice([True, False]):
 
-                self.swap_row(which)
+                self.swap_column(column)
 
 
     def swap_column(self, j):
