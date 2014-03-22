@@ -38,11 +38,19 @@ class Board(QtCore.QObject):
 
                 self.swap_row(row)
 
+            if random.choice([True, False]):
+
+                self.swap_diagonal()
+
         for column in range(self.size()):
 
             if random.choice([True, False]):
 
                 self.swap_column(column)
+
+            if random.choice([True, False]):
+
+                self.swap_diagonal()
 
 
     def swap_column(self, j):
@@ -66,6 +74,21 @@ class Board(QtCore.QObject):
         """
 
         for j in range(self.__size):
+
+            self.__board[i][j] = not self.__board[i][j]
+
+            self.flipped.emit(i, j)
+
+        self.signal_if_solved()
+
+    def swap_diagonal(self):
+        """B.swap_diagonal()
+
+        Swap the values on the rising diagonal
+        """
+
+        for i in range (self.__size):
+            j = self.__size - i - 1
 
             self.__board[i][j] = not self.__board[i][j]
 
@@ -221,6 +244,26 @@ class ColumnFlipper(QtGui.QPushButton):
         self.__board.swap_column(self.__column_no)
 
 
+class DiagonalFlipper(QtGui.QPushButton):
+    """A button that flips the board's rising diagonal"""
+
+    def __init__(self, board, parent=None):
+
+        super(DiagonalFlipper, self).__init__('Flip', parent)
+
+        self.__board = board
+
+        self.clicked.connect(self.flip)
+
+    def flip(self):
+        """RF.flip()
+
+        Flips the appropriate column.
+        """
+
+        self.__board.swap_diagonal()
+
+
 class GameScreen(QtGui.QWidget):
     """A game screen"""
 
@@ -244,6 +287,8 @@ class GameScreen(QtGui.QWidget):
             for column in range(board_size):
 
                 grid.addWidget(BoxWidget(board, (row, column)), row, column + 1)
+
+        grid.addWidget(DiagonalFlipper(board), board_size, 0)
 
         for column in range(board_size):
 
