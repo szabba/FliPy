@@ -212,19 +212,41 @@ class ColumnFlipper(QtGui.QPushButton):
         self.__board.swap_column(self.__column_no)
 
 
+class GameScreen(QtGui.QWidget):
+    """A game screen"""
+
+    def __init__(self, board_size, how_messy, parent=None):
+
+        super(GameScreen, self).__init__()
+
+        if parent is not None:
+
+            self.setParent(parent)
+
+        grid = QtGui.QGridLayout()
+
+        board = Board(board_size, how_messy)
+
+        for row in range(board_size):
+
+            grid.addWidget(RowFlipper(board, row), row, 0)
+
+            for column in range(board_size):
+
+                grid.addWidget(BoxWidget(board, (row, column)), row, column + 1)
+
+        for column in range(board_size):
+
+            grid.addWidget(ColumnFlipper(board, column), board_size, column + 1)
+
+        self.setLayout(grid)
+
+
 if __name__ == '__main__':
 
     app = QtGui.QApplication(sys.argv)
 
-    b = Board(5, 3)
-
-    bw = BoxWidget(b, (3, 3))
-    bw.show()
-
-    rf = RowFlipper(b, 3)
-    rf.show()
-
-    cf = ColumnFlipper(b, 3)
-    cf.show()
+    gs = GameScreen(5, 3)
+    gs.show()
 
     sys.exit(app.exec_())
