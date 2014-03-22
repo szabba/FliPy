@@ -11,7 +11,7 @@ from PyQt4 import QtGui, QtCore
 class Board(QtCore.QObject):
     """The logical SwaPy board"""
 
-    stateChanged = QtCore.pyqtSignal()
+    flipped = QtCore.pyqtSignal(int, int)
     solved = QtCore.pyqtSignal()
 
     def __init__(self, size, mess):
@@ -60,11 +60,7 @@ class Board(QtCore.QObject):
 
             self.__board[i][j] = not self.__board[i][j]
 
-        if self.__signal_when_solved:
-
-            if all(map(all, self.__board)):
-
-                self.solved.emit()
+            self.flipped.emit(i, j)
 
     def swap_row(self, i):
         """B.swap_row(i)
@@ -76,11 +72,7 @@ class Board(QtCore.QObject):
 
             self.__board[i][j] = not self.__board[i][j]
 
-        if self.__signal_when_solved:
-
-            if all(map(all, self.__board)):
-
-                self.solved.emit()
+            self.flipped.emit(i, j)
 
     def size(self):
         """B.size() -> board size
@@ -116,61 +108,44 @@ class Board(QtCore.QObject):
         return out.getvalue()
 
 
-class BoardWidget(QtGui.QWidget):
-    """A Qt widget displaying a board."""
+class BoxWidget(QtGui.QWidget):
+    """A single box widget."""
 
     ON_COLOR = QtGui.QColor(0, 255, 0)
     OFF_COLOR = QtGui.QColor(255, 0, 0)
-    MIN_BOX_SIZE = 60
 
-    def __init__(self, board, parent=None):
+    def __init__(self, board, pos, parent=None):
 
-        super(BoardWidget, self).__init__()
+        super(BoxWidget, self).__init__()
 
         if parent is not None:
 
             self.setParent(parent)
 
-        else:
-
-            self.resize(
-                    BoardWidget.MIN_BOX_SIZE * board.size(),
-                    BoardWidget.MIN_BOX_SIZE * board.size())
-
-        board.stateChanged.connect(self.draw)
         self.__board = board
+        self.__pos = pos
 
     def draw(self):
         """BW.draw()
 
-        Draws the board in a widget.
+        Redisplays a single box.
         """
-
-        box_width = self.width() / self.__board.size()
-        box_height = self.height() / self.__board.size()
 
         qp = QtGui.QPainter()
         qp.begin(self)
 
-        for i in range(self.__board.size()):
-            for j in range(self.__board.size()):
+        if self.__board.is_on(*self.__pos):
 
-                if self.__board.is_on(i, j):
+            color = BoxWidget.ON_COLOR
 
-                    color = BoardWidget.ON_COLOR
+        else:
 
-                else:
+            color = BoxWidget.OFF_COLOR
 
-                    color = BoardWidget.OFF_COLOR
+        qp.setPen(color)
+        qp.setBrush(color)
 
-                qp.setPen(color)
-                qp.setBrush(color)
-
-                qp.drawRect(
-                        i * box_width,
-                        j * box_height,
-                        box_width,
-                        box_height)
+        qp.drawRect(0, 0, self.width(), self.height())
 
         qp.end()
 
@@ -185,11 +160,11 @@ class BoardWidget(QtGui.QWidget):
 
 if __name__ == '__main__':
 
-    b = Board(5, 3)
-
     app = QtGui.QApplication(sys.argv)
 
-    bw = BoardWidget(b)
+    b = Board(5, 3)
+
+    bw = BoxWidget(b, (3, 3))
     bw.show()
 
     sys.exit(app.exec_())
