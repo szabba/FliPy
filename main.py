@@ -57,6 +57,8 @@ class Board(QtCore.QObject):
 
             self.flipped.emit(i, j)
 
+        self.signal_if_solved()
+
     def swap_row(self, i):
         """B.swap_row(i)
 
@@ -68,6 +70,8 @@ class Board(QtCore.QObject):
             self.__board[i][j] = not self.__board[i][j]
 
             self.flipped.emit(i, j)
+
+        self.signal_if_solved()
 
     def size(self):
         """B.size() -> board size
@@ -84,6 +88,16 @@ class Board(QtCore.QObject):
         """
 
         return self.__board[i][j]
+
+    def signal_if_solved(self):
+        """B.signal_if_solved()
+
+        Signal if the board has been solved.
+        """
+
+        if all(map(all, self.__board)):
+
+            self.solved.emit()
 
     def __str__(self):
 
@@ -220,7 +234,8 @@ class GameScreen(QtGui.QWidget):
 
         grid = QtGui.QGridLayout()
 
-        board = Board(board_size, how_messy)
+        board = self.__board = Board(board_size)
+        self.__board.solved.connect(self.onSolved)
 
         for row in range(board_size):
 
@@ -235,6 +250,14 @@ class GameScreen(QtGui.QWidget):
             grid.addWidget(ColumnFlipper(board, column), board_size, column + 1)
 
         self.setLayout(grid)
+
+    def onSolved(self):
+        """GS.onSolved()
+
+        React to the board being solved.
+        """
+
+        self.__board.mess_up()
 
 
 if __name__ == '__main__':
