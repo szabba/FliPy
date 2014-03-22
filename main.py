@@ -267,13 +267,9 @@ class DiagonalFlipper(QtGui.QPushButton):
 class GameScreen(QtGui.QWidget):
     """A game screen"""
 
-    def __init__(self, board_size, parent=None):
+    def __init__(self, board_size, anchor):
 
         super(GameScreen, self).__init__()
-
-        if parent is not None:
-
-            self.setParent(parent)
 
         grid = QtGui.QGridLayout()
 
@@ -294,7 +290,11 @@ class GameScreen(QtGui.QWidget):
 
             grid.addWidget(ColumnFlipper(board, column), board_size, column + 1)
 
+        self.__anchor = anchor
+        anchor.anchor(self)
+
         self.setLayout(grid)
+        self.show()
 
     def onSolved(self):
         """GS.onSolved()
@@ -302,14 +302,76 @@ class GameScreen(QtGui.QWidget):
         React to the board being solved.
         """
 
-        self.__board.mess_up()
+        NewGame(self.__anchor, self.__board.size())
+
+        self.destroy()
+
+
+class NewGame(QtGui.QWidget):
+    """A new game screen"""
+
+    MIN_SIZE = 3
+    MAX_SIZE = 7
+
+    def __init__(self, anchor, init_size=MIN_SIZE):
+
+        super(NewGame, self).__init__()
+
+        box = QtGui.QBoxLayout(QtGui.QBoxLayout.TopToBottom)
+
+        box.addWidget(QtGui.QLabel('What size should the board be?'))
+
+        slider = self.__slider = QtGui.QSlider(QtCore.Qt.Horizontal)
+        slider.setValue(init_size)
+        slider.setRange(NewGame.MIN_SIZE, NewGame.MAX_SIZE)
+
+        box.addWidget(slider)
+
+        button = QtGui.QPushButton('Start!')
+        button.clicked.connect(self.start)
+
+        box.addWidget(button)
+
+        self.__anchor = anchor
+        anchor.anchor(self)
+
+        self.setLayout(box)
+        self.show()
+
+    def start(self):
+        """NG.start()
+
+        Starts a new game.
+        """
+
+        GameScreen(
+                self.__slider.value(),
+                self.__anchor)
+
+        self.destroy()
+
+
+class Anchor(object):
+    """Keeps a reference to the current window, so it doesn't get garbage
+    collected. This helps prevent a segfault.
+
+    PyQt memory managment is complicated.
+    """
+
+    def anchor(self, v):
+        """A.anchor(v)
+
+        Change the value being anchored.
+        """
+
+        self.__v = v
 
 
 if __name__ == '__main__':
 
     app = QtGui.QApplication(sys.argv)
 
-    gs = GameScreen(5)
-    gs.show()
+    anchor = Anchor()
+    NewGame(anchor)
 
     sys.exit(app.exec_())
