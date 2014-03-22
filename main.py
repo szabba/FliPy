@@ -294,6 +294,7 @@ class GameScreen(QtGui.QWidget):
         anchor.anchor(self)
 
         self.setLayout(grid)
+        self.setWindowTitle('FliPy')
         self.show()
 
     def onSolved(self):
@@ -336,6 +337,7 @@ class NewGame(QtGui.QWidget):
         anchor.anchor(self)
 
         self.setLayout(box)
+        self.setWindowTitle('New game')
         self.show()
 
     def start(self):
